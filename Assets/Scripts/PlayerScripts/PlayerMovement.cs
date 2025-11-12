@@ -13,9 +13,9 @@ public class PlayerMovement : MonoBehaviour
     float rotationSensitivity = 5f;
     float cameraXAxisClamp;
 
-    float maxJumpHeight;
-    float maxJumpChargingTime;
-    float timeSpaceBarDown;
+    float maxJumpHeight = 7f;
+    float maxJumpChargingTime = 1.0f;
+    float timeSpaceBarDown = 0f;
     bool jumpCharging = false;
 
     public bool allowedToMove = true;
@@ -36,16 +36,8 @@ public class PlayerMovement : MonoBehaviour
         {
             DoRotation();
         }
-    }
 
-    void FixedUpdate()
-    {
-        if (allowedToMove)
-        {
-            DoMovement();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space))
         {
             timeSpaceBarDown += Time.deltaTime;
             jumpCharging = true;
@@ -55,9 +47,20 @@ public class PlayerMovement : MonoBehaviour
             if (jumpCharging)
             {
                 jumpCharging = false;
+
                 DoJump();
             }
         }
+    }
+
+    void FixedUpdate()
+    {
+        if (allowedToMove)
+        {
+            DoMovement();
+        }
+
+        
     }
 
     void DoJump()
@@ -67,16 +70,18 @@ public class PlayerMovement : MonoBehaviour
         float jumpStrength = Mathf.Min(maxJumpChargingTime, timeSpaceBarDown) / maxJumpChargingTime;
         Vector3 jumpForce = Vector3.up * maxJumpHeight * jumpStrength;
 
-        rb.AddForce(jumpForce);
+        rb.AddForce(jumpForce, ForceMode.Impulse);
+
+        timeSpaceBarDown = 0f;
     }
 
     void DoMovement()
     {
         // clamp inputs
-        // if (movementInputs.x + movementInputs.y > 0.7f)
-        // {
-        //     movementInputs = Vector2.ClampMagnitude(movementInputs, 1);
-        // }
+        if (movementInputs.x + movementInputs.y > 0.7f)
+        {
+            movementInputs = Vector2.ClampMagnitude(movementInputs, 1);
+        }
 
         playerMovement = (transform.forward * movementInputs.y + transform.right * movementInputs.x) * walkSpeed;
         playerMovement.y = rb.linearVelocity.y;
