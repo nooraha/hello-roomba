@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public UnityEvent<float> playerJumped = new UnityEvent<float>();
     Rigidbody rb;
     [SerializeField] GameObject cameraObj;
 
@@ -14,11 +16,18 @@ public class PlayerMovement : MonoBehaviour
     float cameraXAxisClamp;
 
     float maxJumpHeight = 7f;
-    float maxJumpChargingTime = 1.0f;
+    float maxJumpChargingTime = 0.5f;
     float timeSpaceBarDown = 0f;
     bool jumpCharging = false;
 
     public bool allowedToMove = true;
+
+    PlayerHunger playerHunger;
+
+    void Awake()
+    {
+        playerHunger = FindFirstObjectByType<PlayerHunger>();
+    }
 
     void Start()
     {
@@ -67,12 +76,19 @@ public class PlayerMovement : MonoBehaviour
     {
         // compute height of jump
         // jumpStrength is decimal 0.0-1.0 describing strength of jump in comp. to max allowed
-        float jumpStrength = Mathf.Min(maxJumpChargingTime, timeSpaceBarDown) / maxJumpChargingTime;
-        Vector3 jumpForce = Vector3.up * maxJumpHeight * jumpStrength;
+        float jumpStrength = Mathf.Min(maxJumpChargingTime, timeSpaceBarDown + 0.1f) / maxJumpChargingTime;
 
+        if (playerHunger.currentHunger < jumpStrength * playerHunger.maxHungerDecayFromJumping)
+        {
+            jumpStrength = playerHunger.currentHunger / playerHunger.maxHungerDecayFromJumping;
+        }
+        
+        Vector3 jumpForce = Vector3.up * maxJumpHeight * jumpStrength;
         rb.AddForce(jumpForce, ForceMode.Impulse);
 
-        timeSpaceBarDown = 0f;
+            timeSpaceBarDown = 0f;
+            playerJumped.Invoke(jumpStrength);
+        
     }
 
     void DoMovement()
