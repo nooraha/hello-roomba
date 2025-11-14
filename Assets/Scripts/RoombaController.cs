@@ -57,6 +57,14 @@ public class RoombaController : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Knockable"))
+        {
+            StunRoombaForSeconds(2f);
+        }
+    }
+
     float DistanceToPlayer()
     {
         return Vector3.Distance(player.transform.position, transform.position);
@@ -86,7 +94,7 @@ public class RoombaController : MonoBehaviour
 
         // check if player is within sight
         bool playerInSight = false;
-        Vector3 toPlayer = player.position + Vector3.up - transform.position;
+        Vector3 toPlayer = player.position - Vector3.up * 0.5f - transform.position;
 
         Vector3 origin1 = transform.position + Vector3.up * 2.5f;
         Vector3 origin2 = transform.position + transform.forward * 3.5f;
@@ -108,13 +116,6 @@ public class RoombaController : MonoBehaviour
                 playerInSight = true;
             }
         }
-
-        // Ray ray_1 = new Ray(transform.position + Vector3.up * 2.5f, player.position + Vector3.up - transform.position);
-        // Physics.Raycast(ray_1, out RaycastHit hit_1, roombaSightDistance);
-        // Ray ray_2 = new Ray(transform.position + Vector3.up * 3.5f, player.position + Vector3.up - transform.position);
-        // Physics.Raycast(ray_2, out RaycastHit hit_2, roombaSightDistance);
-
-        // playerInSight = hit_1.collider.gameObject.CompareTag("Player") || hit_2.collider.gameObject.CompareTag("Player");
 
         // if player is not within sight, update timer
         if (playerInSight)
