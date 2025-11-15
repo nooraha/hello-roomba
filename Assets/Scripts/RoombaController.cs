@@ -3,26 +3,30 @@ using System.Threading;
 using Unity.VisualScripting.InputSystem;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 public class RoombaController : MonoBehaviour
 {
+    public static UnityEvent attackedPlayer = new UnityEvent();
+    public static UnityEvent startedChasingPlayer = new UnityEvent();
+    public static UnityEvent stoppedChasingPlayer = new UnityEvent();
     Transform player;
     NavMeshAgent agent;
     Transform patrolPointsParent;
     List<Transform> patrolPoints = new List<Transform>();
 
-    float chaseRange = 20f;
-    float attackRange = 1f;
+    float chaseRange = 10f;
+    float attackRange = 4f;
     float baseSpeedMultiplier = 1f;
     float baseAngularSpeed = 180f;
     float chaseSpeed = 2f;
     float roamSpeed = 1f;
+    float attackSpeed = 4f;
     float playerLostWhileChasingTimer;
     float roombaAttentionSpan = 6f;
-    float roombaSightDistance = 200f;
-
-    bool attacking = false;
+    float roombaSightDistance = 10f;
     bool chasing = false;
+    bool attacking = false;
 
     void Awake()
     {
@@ -43,11 +47,7 @@ public class RoombaController : MonoBehaviour
         // if bool attacking then doAttackState
         // if bool chasing then doChaseState
         // if neither of these then roam i guess, doRoamState
-        if (attacking)
-        {
-            AttackPlayer();
-        }
-        else if (chasing)
+        if (chasing)
         {
             DoChaseState();
         }
@@ -55,11 +55,16 @@ public class RoombaController : MonoBehaviour
         {
             DoRoamState();
         }
+
+        if(attacking)
+        {
+            CheckIfGameOver();
+        }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Knockable"))
+        if (other.CompareTag("Knockable"))
         {
             StunRoombaForSeconds(2f);
         }
@@ -70,14 +75,23 @@ public class RoombaController : MonoBehaviour
         return Vector3.Distance(player.transform.position, transform.position);
     }
 
+    void CheckIfGameOver()
+    {
+        if (DistanceToPlayer() < 1f)
+        {
+            GameStateManager.Instance.LoseGame();
+        }
+    }
+
     void EnterChaseState()
     {
         agent.speed = baseSpeedMultiplier * chaseSpeed;
-        agent.angularSpeed = baseAngularSpeed * 2;
+        agent.angularSpeed = baseAngularSpeed * chaseSpeed;
         playerLostWhileChasingTimer = 0f;
         chasing = true;
 
         Debug.Log("Roomba entered chase state");
+        startedChasingPlayer.Invoke();
     }
 
     void DoChaseState()
@@ -89,7 +103,8 @@ public class RoombaController : MonoBehaviour
         // if the player is within attack range, enter attack state
         if (DistanceToPlayer() < attackRange)
         {
-            EnterAttackState();
+            stoppedChasingPlayer.Invoke();
+            AttackPlayer();
         }
 
         // check if player is within sight
@@ -121,34 +136,32 @@ public class RoombaController : MonoBehaviour
         if (playerInSight)
         {
             playerLostWhileChasingTimer = 0f;
-            Debug.Log("Player is in sight");
         }
         else
         {
             playerLostWhileChasingTimer += Time.deltaTime;
-            Debug.Log("Player is not in sight");
         }
 
         // if timer is more than set val, enter roaming state
         if (playerLostWhileChasingTimer >= roombaAttentionSpan)
         {
             Debug.Log("Player not seen in a while, roomba lost interest");
+            stoppedChasingPlayer.Invoke();
             EnterRoamState();
         }
     }
 
-    void EnterAttackState()
-    {
-        // game over for cat idk what happens here yet
-        // run over the cat i guess
-        attacking = true;
-
-        Debug.Log("Roomba entered attack state");
-    }
 
     void AttackPlayer()
     {
+        agent.speed = baseSpeedMultiplier * attackSpeed;
+        agent.angularSpeed = baseAngularSpeed * attackSpeed;
         // angry vroooommmm
+        // make player screen go to red or something lmao
+        attackedPlayer.Invoke();
+        // player.GetComponent<PlayerMovement>().StopMovement();
+        // GameStateManager.Instance.Invoke("LoseGame", 2f);
+        attacking = true;
     }
 
     void EnterRoamState()
@@ -156,9 +169,9 @@ public class RoombaController : MonoBehaviour
         agent.speed = baseSpeedMultiplier * roamSpeed;
         agent.angularSpeed = baseAngularSpeed;
         chasing = false;
-        attacking = false;
 
         Debug.Log("Roomba entered roaming state");
+        
     }
 
     void DoRoamState()

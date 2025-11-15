@@ -5,8 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - PatrolPoints
-  - FoodSpawningArea
   - FoodSpawningAreas
+  - Roomba
+  - Knockable
   layers:
   - Default
   - TransparentFX

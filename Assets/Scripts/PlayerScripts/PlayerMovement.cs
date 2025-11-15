@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -32,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        RoombaController.attackedPlayer.AddListener(LookAtRoombaInTerrior);
     }
 
     void Update()
@@ -136,13 +138,28 @@ public class PlayerMovement : MonoBehaviour
 
     public void StopMovement(float seconds)
     {
-        allowedToMove = false;
-        rb.linearVelocity = Vector3.zero;
+        StopMovement();
         Invoke("ReallowMovement", seconds);
     }
-    
+
+    public void StopMovement()
+    {
+        allowedToMove = false;
+        rb.linearVelocity = Vector3.zero;
+    }
+
     public void ReallowMovement()
     {
         allowedToMove = true;
+    }
+    
+    public void LookAtRoombaInTerrior()
+    {
+        allowedToMove = false;
+        Vector3 roombaDirection = GameObject.FindGameObjectWithTag("Roomba").transform.position - transform.position;
+        Quaternion newRotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, roombaDirection, Mathf.PI * 2, 0.0f));
+
+        transform.rotation = newRotation;
+        cameraObj.transform.rotation = newRotation;
     }
 }
