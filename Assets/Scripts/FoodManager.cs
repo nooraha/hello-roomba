@@ -38,14 +38,19 @@ public class FoodManager : MonoBehaviour
         DoRandomFoodSpawning();
         spawnFoodTimer += Time.deltaTime;
     }
-    
+
     void DoRandomFoodSpawning()
     {
-        if(foodObjects.Count < maxFoodItemsCount && spawnFoodTimer >= spawnFoodIntervalSeconds)
+        if (foodObjects.Count < maxFoodItemsCount && spawnFoodTimer >= spawnFoodIntervalSeconds)
         {
             SpawnFoodObject();
             spawnFoodTimer = 0f;
         }
+    }
+    
+    public void RemoveEatenFoodObject(FoodObject foodObject)
+    {
+        foodObjects.Remove(foodObject);
     }
 
     void SpawnFoodObject()
@@ -56,13 +61,16 @@ public class FoodManager : MonoBehaviour
         // instantiate obj with random parent transform
         GameObject obj = Instantiate(foodObjectPrefab, parentArea);
 
+
         // move obj to random location within parent transform, randomize coords
         Collider parentAreaCollider = parentArea.GetComponent<Collider>();
         Vector3 newObjPosition = RandomVectorInRange(parentAreaCollider.bounds.min, parentAreaCollider.bounds.max);
         obj.transform.SetPositionAndRotation(newObjPosition, obj.transform.rotation);
 
         // instantiate foodObject script
-        obj.GetComponent<FoodObject>().ConstructFood(foodNutritionalValue, foodEaten);
+        FoodObject foodObjectComp = obj.GetComponent<FoodObject>();
+        foodObjectComp.ConstructFood(foodNutritionalValue, foodEaten, this);
+        foodObjects.Add(foodObjectComp);
 
         
     }

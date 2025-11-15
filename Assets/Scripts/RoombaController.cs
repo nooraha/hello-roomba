@@ -121,12 +121,10 @@ public class RoombaController : MonoBehaviour
         if (playerInSight)
         {
             playerLostWhileChasingTimer = 0f;
-            Debug.Log("Player is in sight");
         }
         else
         {
             playerLostWhileChasingTimer += Time.deltaTime;
-            Debug.Log("Player is not in sight");
         }
 
         // if timer is more than set val, enter roaming state
