@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class FoodManager : MonoBehaviour
 {
-    public UnityEvent<float> foodEaten = new UnityEvent<float>();
+    public static UnityEvent<float> foodEaten = new UnityEvent<float>();
     PlayerHunger playerHunger;
     [SerializeField] List<FoodObject> foodObjects = new List<FoodObject>();
     [SerializeField] List<Transform> spawningAreas = new List<Transform>();
@@ -69,7 +69,7 @@ public class FoodManager : MonoBehaviour
 
         // instantiate foodObject script
         FoodObject foodObjectComp = obj.GetComponent<FoodObject>();
-        foodObjectComp.ConstructFood(foodNutritionalValue, foodEaten, this);
+        foodObjectComp.ConstructFood(foodNutritionalValue, this);
         foodObjects.Add(foodObjectComp);
 
         
