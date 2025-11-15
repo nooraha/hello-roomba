@@ -5,8 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - PatrolPoints
-  - FoodSpawningArea
   - FoodSpawningAreas
+  - Roomba
   layers:
   - Default
   - TransparentFX

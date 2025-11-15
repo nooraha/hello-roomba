@@ -28,7 +28,15 @@ public class PlayerHunger : MonoBehaviour
     {
         DoHungerDecay();
         hungerBar.UpdateHungerBar(currentHunger / maxHunger);
-        
+        EndGameIfOutOfHunger();
+    }
+    
+    void EndGameIfOutOfHunger()
+    {
+        if(currentHunger <= 0)
+        {
+            GameStateManager.Instance.LoseGame();
+        }
     }
 
     void DoHungerDecay()
