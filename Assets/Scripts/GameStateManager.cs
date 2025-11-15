@@ -24,7 +24,7 @@ public class GameStateManager : MonoBehaviour
 
     void Update()
     {
-        if(currentlyPlaying)
+        if (currentlyPlaying)
         {
             gameLastedTimer += Time.deltaTime;
 
@@ -34,11 +34,16 @@ public class GameStateManager : MonoBehaviour
             }
         }
     }
+    
+    public void OpenTitleScreen()
+    {
+        SceneManager.LoadScene("TitleScene");
+    }
     public void StartGame()
     {
         gameLastedTimer = 0f;
         currentlyPlaying = true;
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("SampleScene");
     }
 
     void CleanUpAfterGameEnd()
