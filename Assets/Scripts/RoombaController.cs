@@ -10,12 +10,16 @@ public class RoombaController : MonoBehaviour
     public static UnityEvent attackedPlayer = new UnityEvent();
     public static UnityEvent startedChasingPlayer = new UnityEvent();
     public static UnityEvent stoppedChasingPlayer = new UnityEvent();
+
+    public static UnityEvent playerEnteredCloseRange = new UnityEvent();
+    public static UnityEvent playerLeftCloseRange = new UnityEvent();
     Transform player;
     NavMeshAgent agent;
     Transform patrolPointsParent;
     List<Transform> patrolPoints = new List<Transform>();
 
     float chaseRange = 10f;
+    float closeRange = 6f;
     float attackRange = 4f;
     float baseSpeedMultiplier = 1f;
     float baseAngularSpeed = 180f;
@@ -26,6 +30,7 @@ public class RoombaController : MonoBehaviour
     float roombaAttentionSpan = 6f;
     float roombaSightDistance = 10f;
     bool chasing = false;
+    bool inCloseRange = false;
     bool attacking = false;
 
     void Awake()
@@ -101,6 +106,17 @@ public class RoombaController : MonoBehaviour
         agent.SetDestination(player.position);
 
         // if the player is within attack range, enter attack state
+        if (!inCloseRange && DistanceToPlayer() < closeRange)
+        {
+            playerEnteredCloseRange.Invoke();
+            inCloseRange = true;
+        }
+        if (inCloseRange && DistanceToPlayer() > closeRange)
+        {
+            playerLeftCloseRange.Invoke();
+            inCloseRange = false;
+        }
+
         if (DistanceToPlayer() < attackRange)
         {
             stoppedChasingPlayer.Invoke();

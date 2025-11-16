@@ -3,15 +3,13 @@ using UnityEngine.Events;
 
 public class FoodObject : MonoBehaviour
 {
-    UnityEvent<float> foodEaten;
 
     float nutritionalValue;
     FoodManager foodManager;
 
-    public void ConstructFood(float nutritionalValue, UnityEvent<float> foodEaten, FoodManager foodManager)
+    public void ConstructFood(float nutritionalValue, FoodManager foodManager)
     {
         this.nutritionalValue = nutritionalValue;
-        this.foodEaten = foodEaten;
         this.foodManager = foodManager;
     }
 
@@ -19,7 +17,7 @@ public class FoodObject : MonoBehaviour
     {
         if(collision.CompareTag("Player"))
         {
-            foodEaten.Invoke(nutritionalValue);
+            FoodManager.foodEaten.Invoke(nutritionalValue);
             foodManager.RemoveEatenFoodObject(this);
             Debug.Log("yum yum");
             Destroy(this.gameObject);

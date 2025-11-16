@@ -15,7 +15,7 @@ public class InteractionIndicator : MonoBehaviour
     {
         if (text.Length > 1)
         {
-            indicatorText.text = text;
+            indicatorText.text = "Press [E] to " + text;
         }
         else
         {
