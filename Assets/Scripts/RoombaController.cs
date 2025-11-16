@@ -61,10 +61,7 @@ public class RoombaController : MonoBehaviour
             DoRoamState();
         }
 
-        if(attacking)
-        {
-            CheckIfGameOver();
-        }
+        CheckIfGameOver();
     }
 
     void OnTriggerEnter(Collider other)
@@ -170,14 +167,19 @@ public class RoombaController : MonoBehaviour
 
     void AttackPlayer()
     {
-        agent.speed = baseSpeedMultiplier * attackSpeed;
-        agent.angularSpeed = baseAngularSpeed * attackSpeed;
-        // angry vroooommmm
-        // make player screen go to red or something lmao
-        attackedPlayer.Invoke();
-        // player.GetComponent<PlayerMovement>().StopMovement();
-        // GameStateManager.Instance.Invoke("LoseGame", 2f);
+        
+        if(!attacking)
+        {
+            agent.speed = baseSpeedMultiplier * attackSpeed;
+            agent.angularSpeed = baseAngularSpeed * attackSpeed;
+            // angry vroooommmm
+            // make player screen go to red or something lmao
+            attackedPlayer.Invoke();
+            // player.GetComponent<PlayerMovement>().StopMovement();
+            // GameStateManager.Instance.Invoke("LoseGame", 2f);
+        }
         attacking = true;
+        
     }
 
     void EnterRoamState()
@@ -185,6 +187,8 @@ public class RoombaController : MonoBehaviour
         agent.speed = baseSpeedMultiplier * roamSpeed;
         agent.angularSpeed = baseAngularSpeed;
         chasing = false;
+
+        agent.SetDestination(patrolPoints[Random.Range(0, patrolPoints.Count)].position);
 
         Debug.Log("Roomba entered roaming state");
         
@@ -194,7 +198,10 @@ public class RoombaController : MonoBehaviour
     {
         // roam around randomly, pathfind to random locations ?
         // maybe check specific locations where food spawns (make food spawn within set areas, but randomly and in a random area)
-        agent.SetDestination(patrolPoints[Random.Range(0, patrolPoints.Count)].position);
+        if(agent.remainingDistance < 0.3f)
+        {
+            agent.SetDestination(patrolPoints[Random.Range(0, patrolPoints.Count)].position);
+        }
 
         // check if player is within chase range, if so enterChaseState
         if (DistanceToPlayer() < chaseRange)

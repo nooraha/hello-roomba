@@ -9,18 +9,23 @@ public class FoodManager : MonoBehaviour
     PlayerHunger playerHunger;
     [SerializeField] List<FoodObject> foodObjects = new List<FoodObject>();
     [SerializeField] List<Transform> spawningAreas = new List<Transform>();
+    Transform foodSpawningAreaHolder;
     [SerializeField] float foodNutritionalValue = 10f;
 
     [SerializeField] float spawnFoodTimer = 0f;
     [SerializeField] float spawnFoodIntervalSeconds = 60f;
     [SerializeField] int maxFoodItemsCount = 6;
 
+    Vector3 holderScale;
+
     public GameObject foodObjectPrefab;
 
     void Awake()
     {
+        foodSpawningAreaHolder = GameObject.FindGameObjectWithTag("FoodSpawningAreas").transform;
+        holderScale = foodSpawningAreaHolder.localScale;
         playerHunger = FindFirstObjectByType<PlayerHunger>();
-        foreach(Transform area in GameObject.FindGameObjectWithTag("FoodSpawningAreas").transform)
+        foreach(Transform area in foodSpawningAreaHolder)
         {
             spawningAreas.Add(area.transform);
         }
@@ -65,7 +70,9 @@ public class FoodManager : MonoBehaviour
         // move obj to random location within parent transform, randomize coords
         Collider parentAreaCollider = parentArea.GetComponent<Collider>();
         Vector3 newObjPosition = RandomVectorInRange(parentAreaCollider.bounds.min, parentAreaCollider.bounds.max);
+        obj.transform.localScale = new Vector3(1 / holderScale.x, 1 / holderScale.y, 1 / holderScale.z);
         obj.transform.SetPositionAndRotation(newObjPosition, obj.transform.rotation);
+
 
         // instantiate foodObject script
         FoodObject foodObjectComp = obj.GetComponent<FoodObject>();
